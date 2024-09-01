@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meter Read Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            background-color: darkred;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .status {
+            flex: 1;
+            margin: 0 10px;
+            padding: 10px;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .pending {
+            background-color: black;
+        }
+        .skipped {
+            background-color: red;
+        }
+        .completed {
+            background-color: green;
+        }
+        .meter-list {
+            padding: 20px;
+        }
+        .meter-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .meter-entry:last-child {
+            border-bottom: none;
+        }
+        .address {
+            font-size: 16px;
+        }
+        .status-box {
+            width: 100px; /* Adjust width as needed */
+            height: 30px; /* Adjust height as needed */
+            background-color: black; /* Default color, will be updated dynamically */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .status-label {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">Route Number: 123</div>
+    <div class="status-container">
+        <div class="status pending" onclick="showList('pending')">200 Pending</div>
+        <div class="status skipped" onclick="showList('skipped')">5 Skipped</div>
+        <div class="status completed" onclick="showList('completed')">50 Completed</div>
+    </div>
+    <div class="meter-list">
+        <!-- Sample meter entries -->
+        <div class="meter-entry" data-status="pending">
+            <div class="address">1 Smith St Kingsbury <Meter ID></div>
+            <div class="status-box">Pending</div>
+        </div>
+        <div class="meter-entry" data-status="pending">
+            <div class="address">3 Smith St Kingsbury <Meter ID></div>
+            <div class="status-box">Pending</div>
+        </div>
+        <!-- Add more entries as needed -->
+    </div>
+    <script>
+        function showList(status) {
+            const entries = document.querySelectorAll('.meter-entry');
+            entries.forEach(entry => {
+                if (entry.dataset.status === status || status === 'all') {
+                    entry.style.display = 'flex';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize with pending list
+        showList('pending');
+    </script>
+</body>
+</html>
