@@ -89,4 +89,13 @@
 
                 // Populate Special Messages Table
                 const specialMessagesTable = document.getElementById('specialMessagesTable').getElementsByTagName('tbody')[0];
-                data.special_messages.for
+                data.special_messages.forEach(message => {
+                    const row = specialMessagesTable.insertRow();
+                    row.insertCell(0).textContent = message.meter_id;
+                    row.insertCell(1).textContent = message.message;
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>
