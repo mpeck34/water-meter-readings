@@ -1,6 +1,5 @@
-// Initialize the temporary list from localStorage
-// This is for data reception from field app
-let tempReadings = JSON.parse(localStorage.getItem('tempReadings')) || [];
+// Next mission is to develop global variable lists that gets changed for read status temporarily and then sync back and forward to maintain
+// sync with server at all times and populate pending, skip, complete lists dynamically
 
 // Fetch route data from the backend
 async function fetchRouteData(routeId) {
