@@ -140,7 +140,7 @@ def sync_data():
     data = request.json
     readings = data.get('readings', [])
     
-    with engine.connect() as connection:
+    with engine.begin() as connection:
         for reading in readings:
             meter_id = reading.get('meter_id')
             read_value = reading.get('read_value')
@@ -182,6 +182,21 @@ def sync_data():
                 )
     
     return jsonify({'status': 'success'})
+
+## Server API to display data
+@app.route('/get_data', methods=['GET'])
+def get_data():
+    with engine.connect() as connection:
+        meter_readings = connection.execute('SELECT * FROM meter_readings').fetchall()
+        skip_status = connection.execute('SELECT * FROM skip_status').fetchall()
+        special_messages = connection.execute('SELECT * FROM special_message').fetchall()
+        
+        return jsonify({
+            'meter_readings': [dict(row) for row in meter_readings],
+            'skip_status': [dict(row) for row in skip_status],
+            'special_messages': [dict(row) for row in special_messages]
+        })
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

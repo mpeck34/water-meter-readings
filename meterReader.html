@@ -66,13 +66,15 @@
         <div class="meter-id" id="meterID"></div>
         <div class="address" id="meterAddress"></div>
         <div class="input-container">
-            <input type="tel" pattern="[0-9]*" placeholder="Enter meter reading" maxlength="5">
+            <input type="tel" id="readValueInput" pattern="[0-9]*" placeholder="Enter meter reading" maxlength="5">
         </div>
         <div class="button-container">
             <button class="button enter-button">Enter</button>
             <button class="button skip-button">Skip</button>
         </div>
     </div>
+
+    <script src="script.js"></script>
 
     <script>
         function getQueryParams() {
@@ -84,19 +86,16 @@
         }
 
         function displayMeterDetails(address, meterID) {
-            const detailsContainer = document.getElementById('meterDetails');
-            detailsContainer.innerHTML = `
-                <h1>Meter Details</h1>
-                <p><strong>Address:</strong> ${address}</p>
-                <p><strong>Meter ID:</strong> ${meterID}</p>
-                <!-- Add more details as needed -->
-            `;
+            // Set the address and meterID elements' text content
+            document.getElementById('meterID').textContent = `Meter ID: ${meterID}`;
+            document.getElementById('meterAddress').textContent = `Address: ${address}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const { address, meterID } = getQueryParams();
             displayMeterDetails(address, meterID);
         });
+
     </script>
 </body>
 </html>

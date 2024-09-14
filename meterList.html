@@ -76,18 +76,23 @@
             margin-left: 10px;
             font-size: 16px;
         }
+        .list-section {
+            display: none; /* Initially hide all lists */
+        }
     </style>
 </head>
 <body>
     <div class="top-bar">Route Number: 123</div>
     <button onclick="fetchData()">Refresh Data</button>
     <div class="status-container">
-        <div class="status pending" onclick="showList('pending')">Pending</div>
-        <div class="status skipped" onclick="showList('skipped')">Skipped</div>
-        <div class="status completed" onclick="showList('completed')">Completed</div>
+        <div class="status pending" onclick="showList('pendingList')">Pending</div>
+        <div class="status skipped" onclick="showList('skippedList')">Skipped</div>
+        <div class="status completed" onclick="showList('completedList')">Completed</div>
     </div>
-    <div class="meter-list" id="meterList">
-        <!-- Meters will be dynamically loaded here -->
+    <div class="meter-list">
+        <div id="pendingList" class="list-section"></div>
+        <div id="skippedList" class="list-section"></div>
+        <div id="completedList" class="list-section"></div>
     </div>
 
     <script src="script.js"></script>
@@ -99,31 +104,25 @@
             fetchRouteData(routeId);
         }
 
-        // Initialize with pending list on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData(); // Fetch data automatically when the page loads
-            showList('pending'); // Show pending meters by default
-        });
-    </script>
-
-    <script>
-        function showList(status) {
-            const entries = document.querySelectorAll('.meter-entry');
-            entries.forEach(entry => {
-                if (entry.dataset.status === status || status === 'all') {
-                    entry.style.display = 'flex';
+        // Show list based on the selected status
+        function showList(listId) {
+            console.log(`Showing list: ${listId}`); // Debugging line
+            const allLists = ['pendingList', 'skippedList', 'completedList'];
+            allLists.forEach(id => {
+                const list = document.getElementById(id);
+                if (list) {
+                    list.style.display = (id === listId) ? 'block' : 'none';
                 } else {
-                    entry.style.display = 'none';
+                    console.error(`Element with ID ${id} not found`);
                 }
             });
         }
 
-        function goToReadPage(address, meterID) {
-            window.location.href = `meterReader.html?address=${encodeURIComponent(address)}&meterID=${meterID}`;
-        }
-
-        // Initialize with pending list
-        showList('pending');
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData(); // Fetch data automatically when the page loads
+            showList('pendingList'); // Show pending meters by default
+        });
     </script>
 </body>
 </html>
