@@ -80,23 +80,32 @@
 </head>
 <body>
     <div class="top-bar">Route Number: 123</div>
+    <button onclick="fetchData()">Refresh Data</button>
     <div class="status-container">
-        <div class="status pending" onclick="showList('pending')">200 Pending</div>
-        <div class="status skipped" onclick="showList('skipped')">5 Skipped</div>
-        <div class="status completed" onclick="showList('completed')">50 Completed</div>
+        <div class="status pending" onclick="showList('pending')">Pending</div>
+        <div class="status skipped" onclick="showList('skipped')">Skipped</div>
+        <div class="status completed" onclick="showList('completed')">Completed</div>
     </div>
-    <div class="meter-list">
-        <!-- Sample meter entries -->
-        <div class="meter-entry" data-status="pending">
-            <div class="address">1 Smith St Kingsbury <Meter ID></div>
-            <div class="status-box">Pending</div>
-        </div>
-        <div class="meter-entry" data-status="pending">
-            <div class="address">3 Smith St Kingsbury <Meter ID></div>
-            <div class="status-box">Pending</div>
-        </div>
-        <!-- Add more entries as needed -->
+    <div class="meter-list" id="meterList">
+        <!-- Meters will be dynamically loaded here -->
     </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Function to fetch data when the button is clicked
+        function fetchData() {
+            const routeId = 123; // Example route ID, replace as needed
+            fetchRouteData(routeId);
+        }
+
+        // Initialize with pending list on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData(); // Fetch data automatically when the page loads
+            showList('pending'); // Show pending meters by default
+        });
+    </script>
+
     <script>
         function showList(status) {
             const entries = document.querySelectorAll('.meter-entry');
@@ -107,6 +116,10 @@
                     entry.style.display = 'none';
                 }
             });
+        }
+
+        function goToReadPage(address, meterID) {
+            window.location.href = `meterReader.html?address=${encodeURIComponent(address)}&meterID=${meterID}`;
         }
 
         // Initialize with pending list

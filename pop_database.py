@@ -1,5 +1,3 @@
-# Populate database
-
 import sqlite3
 from datetime import datetime
 
@@ -7,6 +5,18 @@ def populate_database():
     # Connect to SQLite database
     conn = sqlite3.connect('meter_reading.db')
     cursor = conn.cursor()
+
+    # Enable foreign key support
+    cursor.execute('PRAGMA foreign_keys = ON')
+
+    # Clear tables (in reverse order to handle foreign key constraints)
+    cursor.execute('DELETE FROM current_route_assignment')
+    cursor.execute('DELETE FROM special_message')
+    cursor.execute('DELETE FROM skip_status')
+    cursor.execute('DELETE FROM meter_readings')
+    cursor.execute('DELETE FROM expected_range')
+    cursor.execute('DELETE FROM master_index')
+    cursor.execute('DELETE FROM routes')
 
     # Insert route data
     route_id = 123

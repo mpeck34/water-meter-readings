@@ -23,6 +23,11 @@
         }
         .meter-id {
             font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .address {
+            font-size: 18px;
+            color: gray;
             margin-bottom: 20px;
         }
         .input-container {
@@ -34,13 +39,6 @@
             font-size: 18px;
             padding: 5px;
             box-sizing: border-box;
-            /* Optional: Remove default number styling on input */
-            -moz-appearance: textfield;
-        }
-        .input-container input::-webkit-inner-spin-button,
-        .input-container input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
         }
         .button-container {
             display: flex;
@@ -65,7 +63,8 @@
 <body>
     <div class="top-bar">Route Number: 123</div>
     <div class="main-area">
-        <div class="meter-id">Meter ID: 456</div>
+        <div class="meter-id" id="meterID"></div>
+        <div class="address" id="meterAddress"></div>
         <div class="input-container">
             <input type="tel" pattern="[0-9]*" placeholder="Enter meter reading" maxlength="5">
         </div>
@@ -74,5 +73,30 @@
             <button class="button skip-button">Skip</button>
         </div>
     </div>
+
+    <script>
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                address: params.get('address'),
+                meterID: params.get('meterID')
+            };
+        }
+
+        function displayMeterDetails(address, meterID) {
+            const detailsContainer = document.getElementById('meterDetails');
+            detailsContainer.innerHTML = `
+                <h1>Meter Details</h1>
+                <p><strong>Address:</strong> ${address}</p>
+                <p><strong>Meter ID:</strong> ${meterID}</p>
+                <!-- Add more details as needed -->
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const { address, meterID } = getQueryParams();
+            displayMeterDetails(address, meterID);
+        });
+    </script>
 </body>
 </html>

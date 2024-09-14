@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, MetaData, Table
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 # Set up SQLAlchemy
 DATABASE_URL = "sqlite:///meter_reading.db"
@@ -60,9 +63,9 @@ def fetch_route_data(route_id):
     with engine.connect() as connection:
         # Fetch route details
         route_query = connection.execute(text('''
-            SELECT r.route_id, r.route_message
-            FROM routes r
-            WHERE r.route_id = :route_id
+            SELECT route_id, route_message
+            FROM routes
+            WHERE route_id = :route_id
         '''), {"route_id": route_id})
         route_data = route_query.fetchone()
         
@@ -86,23 +89,21 @@ def fetch_route_data(route_id):
         # Format the results
         response = {
             "route": {
-                "route_id": route_data['route_id'],
-                "route_message": route_data['route_message'],
-                "route_name": route_data.get('route_name', 'N/A'),
-                "date_assigned": route_data.get('assigned_datetime', 'N/A')
+                "route_id": route_data[0],  # Access via index for tuple
+                "route_message": route_data[1]
             },
             "meters": [
                 {
-                    "meter_id": meter['meter_id'],
-                    "address": meter['address'],
-                    "expected_range": meter['expected_range'],
-                    "read_value": meter['read_value'],
-                    "read_status": meter['read_status'],
-                    "sync_status": meter['sync_status'],
-                    "last_sync": meter['last_sync'],
-                    "skip_status": meter.get('skip_status', 'N/A'),
-                    "skip_reason": meter.get('skip_reason', 'N/A'),
-                    "special_message": meter.get('special_message', 'N/A')
+                    "meter_id": meter[0],
+                    "address": meter[1],
+                    "expected_range": meter[2],
+                    "read_value": meter[3],
+                    "read_status": meter[4],
+                    "sync_status": meter[5],
+                    "last_sync": meter[6],
+                    "skip_status": meter[7] if meter[7] is not None else 'N/A',
+                    "skip_reason": meter[8] if meter[8] is not None else 'N/A',
+                    "special_message": meter[9] if meter[9] is not None else 'N/A'
                 }
                 for meter in meters_data
             ]
@@ -110,15 +111,15 @@ def fetch_route_data(route_id):
         
     return response
 
+
 @app.route('/')
 def home():
     with engine.connect() as connection:
-        # Fetch route IDs from the database
         result = connection.execute(text('SELECT route_id FROM routes'))
         routes = result.fetchall()
     
     # Create HTML content with the route IDs
-    route_list = ''.join([f"<li>{route['route_id']}</li>" for route in routes])
+    route_list = ''.join([f"<li>{row[0]}</li>" for row in routes])  # Access via index for tuple
     
     return f"""
     <p>Flask is running!</p>
