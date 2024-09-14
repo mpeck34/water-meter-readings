@@ -137,10 +137,31 @@ function saveReading(meterID, readValue, action, specialMessage) {
     temporaryList.push(entry);
     console.log('Temporary list updated:', temporaryList);
 
+    // Advance to the next meter in the pending list
+    advanceToNextMeter();
+
     // Check if the temporary list has reached 5 entries
     if (temporaryList.length >= 5) {
         syncReadings(); // Call the sync function
     }
+}
+
+// Function to advance to the next meter // Update to advance more simply because big update happens later
+function advanceToNextMeter() {
+    if (pendingMeters.length > 0) {
+        const nextMeter = pendingMeters[0]; // Get the next meter in the pending list
+        loadMeter(nextMeter); // Load the next meter into the UI
+    } else {
+        alert('All meters have been completed or skipped.');
+        // Optionally redirect to another page or show a message indicating all meters are done
+    }
+}
+
+// Function to load a meter's data into the UI (replace placeholders with actual implementation)
+function loadMeter(meter) {
+    document.getElementById('meterID').textContent = meter.meter_id;
+    document.getElementById('readValueInput').value = ''; // Clear the input field
+    // Update any other necessary fields, such as special messages or meter address
 }
 
 // Function to handle the 'Enter' button click
