@@ -138,65 +138,61 @@ def get_route_data(route_id):
 @app.route('/sync_data', methods=['POST'])
 def sync_data():
     data = request.json
+
     readings = data.get('readings', [])
     
-    with engine.begin() as connection:
-        for reading in readings:
-            meter_id = reading.get('meter_id')
-            read_value = reading.get('read_value')
-            read_status = reading.get('read_status')
-            sync_status = reading.get('sync_status')
-            last_sync = reading.get('last_sync')
-            skip_status = reading.get('skip_status')
-            skip_reason = reading.get('skip_reason')
-            special_message = reading.get('special_message')
+    try:
+        with engine.begin() as connection:
+            for reading in readings:
+                meter_id = reading.get('meter_id')
+                read_value = reading.get('read_value')
+                read_status = reading.get('read_status')
+                sync_status = reading.get('sync_status')
+                last_sync = reading.get('last_sync')
+                skip_status = reading.get('skip_status')
+                skip_reason = reading.get('skip_reason')
+                special_message = reading.get('special_message')
 
-            # Update the database with the new data
-            connection.execute(
-                '''
-                UPDATE meter_readings
-                SET read_value = :read_value, read_status = :read_status, sync_status = :sync_status, last_sync = :last_sync
-                WHERE meter_id = :meter_id
-                ''',
-                {'read_value': read_value, 'read_status': read_status, 'sync_status': sync_status, 'last_sync': last_sync, 'meter_id': meter_id}
-            )
+                # Update the database with the new data
+                print(f"Updating meter_id: {meter_id}, read_value: {read_value}, read_status: {read_status}, sync_status: {sync_status}, last_sync: {last_sync}")
 
-            # Update skip_status and skip_reason if they exist
-            if skip_status is not None:
                 connection.execute(
-                    '''
-                    INSERT OR REPLACE INTO skip_status (meter_id, skip_status, skip_reason)
-                    VALUES (:meter_id, :skip_status, :skip_reason)
-                    ''',
-                    {'meter_id': meter_id, 'skip_status': skip_status, 'skip_reason': skip_reason}
+                    text('''
+                    UPDATE meter_readings
+                    SET read_value = :read_value, 
+                        read_status = :read_status, 
+                        sync_status = :sync_status, 
+                        last_sync = :last_sync
+                    WHERE meter_id = :meter_id
+                    '''),
+                    {'read_value': read_value, 'read_status': read_status, 'sync_status': sync_status, 'last_sync': last_sync, 'meter_id': meter_id}
                 )
 
-            # Update special_message if it exists
-            if special_message is not None:
-                connection.execute(
-                    '''
-                    INSERT OR REPLACE INTO special_message (meter_id, message)
-                    VALUES (:meter_id, :message)
-                    ''',
-                    {'meter_id': meter_id, 'message': special_message}
-                )
-    
-    return jsonify({'status': 'success'})
+                # Update skip_status and skip_reason if they exist
+                if skip_status is not None:
+                    connection.execute(
+                        text('''
+                        INSERT OR REPLACE INTO skip_status (meter_id, skip_status, skip_reason)
+                        VALUES (:meter_id, :skip_status, :skip_reason)
+                        '''),
+                        {'meter_id': meter_id, 'skip_status': skip_status, 'skip_reason': skip_reason}
+                    )
 
-## Server API to display data
-@app.route('/get_data', methods=['GET'])
-def get_data():
-    with engine.connect() as connection:
-        meter_readings = connection.execute('SELECT * FROM meter_readings').fetchall()
-        skip_status = connection.execute('SELECT * FROM skip_status').fetchall()
-        special_messages = connection.execute('SELECT * FROM special_message').fetchall()
+                # Update special_message if it exists
+                if special_message is not None:
+                    connection.execute(
+                        text('''
+                        INSERT OR REPLACE INTO special_message (meter_id, message)
+                        VALUES (:meter_id, :message)
+                        '''),
+                        {'meter_id': meter_id, 'message': special_message}
+                    )
         
-        return jsonify({
-            'meter_readings': [dict(row) for row in meter_readings],
-            'skip_status': [dict(row) for row in skip_status],
-            'special_messages': [dict(row) for row in special_messages]
-        })
+        return jsonify({'status': 'success'}), 200
 
+    except Exception as e:
+        print(f"Error syncing data: {e}")  # Log the error for debugging
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

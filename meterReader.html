@@ -63,7 +63,9 @@
 <body>
     <div class="top-bar">Route Number: 123</div>
     <div class="main-area">
-        <div class="meter-id" id="meterID"></div>
+        <div class="meter-id">
+            Meter ID: <span id="meterIDValue"></span>
+        </div>
         <div class="address" id="meterAddress"></div>
         <div class="input-container">
             <input type="tel" id="readValueInput" pattern="[0-9]*" placeholder="Enter meter reading" maxlength="5">
@@ -74,6 +76,7 @@
         </div>
     </div>
 
+    <script src="meterReaderScript.js"></script>
     <script src="script.js"></script>
 
     <script>
@@ -81,13 +84,14 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 address: params.get('address'),
-                meterID: params.get('meterID')
+                meterID: params.get('meterIDValue')
             };
         }
 
         function displayMeterDetails(address, meterID) {
             // Set the address and meterID elements' text content
-            document.getElementById('meterID').textContent = `Meter ID: ${meterID}`;
+            document.getElementById('meterIDValue').textContent = meterID;
+            console.log('meter id:' + meterID)
             document.getElementById('meterAddress').textContent = `Address: ${address}`;
         }
 
@@ -97,5 +101,22 @@
         });
 
     </script>
+
+    <table id="temporaryListTable">
+        <thead>
+        <tr>
+            <th>Meter ID</th>
+            <th>Read Value</th>
+            <th>Read Status</th>
+            <th>Skip Status</th>
+            <th>Skip Reason</th>
+            <th>Special Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Rows will be dynamically inserted here -->
+        </tbody>
+    </table>
+
 </body>
 </html>
