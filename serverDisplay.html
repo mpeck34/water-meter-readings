@@ -62,40 +62,32 @@
         <tbody></tbody>
     </table>
 
-    <script>
-        // Fetch data from the server
-        fetch('/get_data')
-            .then(response => response.json())
-            .then(data => {
-                // Populate Meter Readings Table
-                const meterReadingsTable = document.getElementById('meterReadingsTable').getElementsByTagName('tbody')[0];
-                data.meter_readings.forEach(reading => {
-                    const row = meterReadingsTable.insertRow();
-                    row.insertCell(0).textContent = reading.meter_id;
-                    row.insertCell(1).textContent = reading.read_value;
-                    row.insertCell(2).textContent = reading.read_status;
-                    row.insertCell(3).textContent = reading.sync_status;
-                    row.insertCell(4).textContent = reading.last_sync;
-                });
+    <!-- New Section for Field App Monitoring -->
+    <h2>Field App Monitoring</h2>
+    <div class="status-box" id="fieldAppStatusBox">
+        <h3>Field App Status</h3>
+        <p>Sync Frequency: <span id="syncFrequency">Loading...</span></p>
+        <p>Pending Meters: <span id="pendingMeters">Loading...</span></p>
+        <p>Last Sync Time: <span id="lastSyncTime">Loading...</span></p>
+        <p>App Status: <span id="appStatus">Loading...</span></p>
+    </div>
 
-                // Populate Skip Status Table
-                const skipStatusTable = document.getElementById('skipStatusTable').getElementsByTagName('tbody')[0];
-                data.skip_status.forEach(skip => {
-                    const row = skipStatusTable.insertRow();
-                    row.insertCell(0).textContent = skip.meter_id;
-                    row.insertCell(1).textContent = skip.skip_status;
-                    row.insertCell(2).textContent = skip.skip_reason;
-                });
+    <h2>Temporary List (Pending Sync)</h2>
+    <table id="temporaryListTable">
+        <thead>
+            <tr>
+                <th>Meter ID</th>
+                <th>Read Value</th>
+                <th>Read Status</th>
+                <th>Skip Status</th>
+                <th>Skip Reason</th>
+                <th>Special Message</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-                // Populate Special Messages Table
-                const specialMessagesTable = document.getElementById('specialMessagesTable').getElementsByTagName('tbody')[0];
-                data.special_messages.forEach(message => {
-                    const row = specialMessagesTable.insertRow();
-                    row.insertCell(0).textContent = message.meter_id;
-                    row.insertCell(1).textContent = message.message;
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
+    <script src="serverDisplayScript.js"></script>
+
 </body>
 </html>

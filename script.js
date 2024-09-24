@@ -136,6 +136,9 @@ function saveReading(meterID, readValue, action, specialMessage) {
     temporaryList.push(entry);
     console.log('Temporary list updated:', temporaryList);
 
+    // Update the Temporary List Table
+    updateTemporaryListTable();
+
     // Advance to the next meter in the pending list
     advanceToNextMeter();
 
@@ -143,6 +146,23 @@ function saveReading(meterID, readValue, action, specialMessage) {
     if (temporaryList.length >= 5) {
         syncReadings(); // Call the sync function
     }
+}
+
+// Function to update the temporary list table in the UI
+function updateTemporaryListTable() {
+    const tableBody = document.getElementById('temporaryListTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    // Add each entry in the temporary list to the table
+    temporaryList.forEach(entry => {
+        const row = tableBody.insertRow();
+        row.insertCell(0).textContent = entry.meter_id;
+        row.insertCell(1).textContent = entry.read_value;
+        row.insertCell(2).textContent = entry.read_status;
+        row.insertCell(3).textContent = entry.skip_status ? 'Yes' : 'No';
+        row.insertCell(4).textContent = entry.skip_reason || '-';
+        row.insertCell(5).textContent = entry.special_message || '-';
+    });
 }
 
 // Function to advance to the next meter // Update to advance more simply because big update happens later
