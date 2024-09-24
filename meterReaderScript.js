@@ -144,8 +144,7 @@ function syncReadings() {
     .then(response => {
         if (response.ok) {
             console.log('Readings synced successfully');
-            //temporaryList.length = 0; // Clear temporary list
-            //localStorage.removeItem('temporaryList'); // Clear localStorage after sync
+            temporaryList.length = 0; // Clear temporary list
         } else {
             console.error('Failed to sync readings');
         }

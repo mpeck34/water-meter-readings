@@ -16,6 +16,18 @@
             padding: 10px;
             text-align: center;
             font-size: 18px;
+            position: relative; /* Added for positioning the back button */
+        }
+        .back-button {
+            position: absolute;
+            left: 10px; /* Adjust left position as needed */
+            top: 50%;
+            transform: translateY(-50%); /* Center the button vertically */
+            background: none; /* No background */
+            border: none; /* No border */
+            cursor: pointer; /* Pointer cursor on hover */
+            color: white; /* White arrow color */
+            font-size: 24px; /* Size of the arrow */
         }
         .main-area {
             background-color: white;
@@ -61,7 +73,10 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">Route Number: 123</div>
+    <div class="top-bar">
+        <button class="back-button" onclick="goBack()">←</button>
+        Route Number: 123
+    </div>
     <div class="main-area">
         <div class="meter-id">
             Meter ID: <span id="meterIDValue"></span>
@@ -80,6 +95,10 @@
     <script src="script.js"></script>
 
     <script>
+        function goBack() {
+            window.location.href = 'meterList.html'; // Navigate back to meterList.html
+        }
+
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
             return {

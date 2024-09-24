@@ -88,7 +88,7 @@ function displayList(listId, items) {
             <div class="status-box" style="background-color: ${getStatusColor(item.read_status)};"></div>
         `;
         listItem.addEventListener('click', () => {
-            window.location.href = `meterReader.html?meterID=${item.meter_id}&address=${encodeURIComponent(item.address)}`;
+            window.location.href = `meterReader.html?meterIDValue=${item.meter_id}&address=${encodeURIComponent(item.address)}`;
         });
         list.appendChild(listItem);
     });
