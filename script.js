@@ -1,3 +1,5 @@
+// Up next: Function to deal with queueing
+
 // Load lists from localStorage when the page loads
 const pendingList = JSON.parse(localStorage.getItem('pendingList')) || [];
 const skippedList = JSON.parse(localStorage.getItem('skippedList')) || [];
