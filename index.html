@@ -9,19 +9,16 @@
 <body>
     <div class="container mt-5">
         <h1>App Mockup</h1>
-        <button id="fetchData" class="btn btn-primary">Fetch Data</button>
-        <div id="dataDisplay" class="mt-3"></div>
+        <button id="fetchData" class="btn btn-primary">Go to Meter List</button>
     </div>
 
     <script>
+        // Add event listener to the button for navigation
         document.getElementById('fetchData').addEventListener('click', function() {
-            fetch('/api/data')
-                .then(response => response.json())
-                .then(data => {
-                    const dataDisplay = document.getElementById('dataDisplay');
-                    dataDisplay.innerHTML = JSON.stringify(data, null, 2);
-                });
+            // Redirect to meterList.html when the button is clicked
+            window.location.href = 'meterList.html';
         });
     </script>
+
 </body>
 </html>
