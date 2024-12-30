@@ -1,4 +1,8 @@
+// This script deals with the meter list display
+
 // Up next: Function to deal with queueing
+
+// Up next: Create classes to house route lists
 
 // Load lists from localStorage when the page loads
 const pendingList = JSON.parse(localStorage.getItem('pendingList')) || [];
