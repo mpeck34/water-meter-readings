@@ -194,5 +194,16 @@ def sync_data():
         print(f"Error syncing data: {e}")  # Log the error for debugging
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+# API to check if the backend is connected and display on index.html
+@app.route('/check_connection', methods=['GET'])
+def check_connection():
+    try:
+        # Try executing a simple query or check
+        with engine.connect() as connection:
+            result = connection.execute(text('SELECT 1'))  # A simple query to check DB connection
+            return jsonify({"status": "success", "message": "Backend is connected."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Backend is not connected: {str(e)}"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)
