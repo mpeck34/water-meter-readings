@@ -38,7 +38,7 @@ def queue_data(data):
 
 # Check if destination is available
 def is_destination_available():
-    # Example logic
+    # Create applicable logic here, otherwise return true
     return True
 
 def process_queue():
@@ -60,9 +60,13 @@ def process_queue():
 from sqlalchemy import text
 
 def fetch_route_data(route_id):
+
+    # Differentiate bewteen different routes
+    suffix = str(route_id)
+
     with engine.connect() as connection:
         # Fetch route details
-        route_query = connection.execute(text('''
+        route_query = connection.execute(text(f'''
             SELECT route_id, route_message
             FROM routes
             WHERE route_id = :route_id
@@ -73,15 +77,15 @@ def fetch_route_data(route_id):
             return {"error": "Route not found"}, 404
         
         # Fetch meters associated with the route
-        meters_query = connection.execute(text('''
+        meters_query = connection.execute(text(f'''
             SELECT mr.meter_id, mi.address, er.range AS expected_range, 
                    mr.read_value, mr.read_status, mr.sync_status, mr.last_sync,
                    ss.skip_status, ss.skip_reason, sm.message AS special_message
-            FROM meter_readings mr
-            JOIN master_index mi ON mr.meter_id = mi.meter_id
-            LEFT JOIN expected_range er ON mr.meter_id = er.meter_id
-            LEFT JOIN skip_status ss ON mr.meter_id = ss.meter_id
-            LEFT JOIN special_message sm ON mr.meter_id = sm.meter_id
+            FROM meter_readings{suffix} mr
+            JOIN master_index{suffix} mi ON mr.meter_id = mi.meter_id
+            LEFT JOIN expected_range{suffix} er ON mr.meter_id = er.meter_id
+            LEFT JOIN skip_status{suffix} ss ON mr.meter_id = ss.meter_id
+            LEFT JOIN special_message{suffix} sm ON mr.meter_id = sm.meter_id
             WHERE mr.route_id = :route_id
         '''), {"route_id": route_id})
         meters_data = meters_query.fetchall()
@@ -111,6 +115,18 @@ def fetch_route_data(route_id):
         
     return response
 
+def fetch_route_ids():
+    with engine.connect() as connection:
+        # Query for all route ids and messages
+        route_query = connection.execute(text('''
+            SELECT route_id, route_message
+            FROM routes
+        '''))
+        route_data = route_query.fetchall()
+
+     # Format the data into a list of dictionaries
+        response = [{"route_id": row[0], "route_message": row[1]} for row in route_data]
+    return response
 
 @app.route('/')
 def home():
@@ -130,11 +146,19 @@ def home():
     <p>To get route details, use /get_route_data/&lt;route_id&gt;</p>
     """
 
+# Get list of available routes for routeSelection/routeManager
+@app.route('/get_available_routes', methods=['GET'])
+def get_available_routes():
+    data = fetch_route_ids()
+    return jsonify(data)
+
+# Get route data for meterList/script
 @app.route('/get_route_data/<int:route_id>', methods=['GET'])
 def get_route_data(route_id):
     data = fetch_route_data(route_id)
     return jsonify(data)
 
+# Sync after 5 reads
 @app.route('/sync_data', methods=['POST'])
 def sync_data():
     data = request.json
