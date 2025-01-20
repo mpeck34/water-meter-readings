@@ -4,9 +4,11 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from flask_cors import CORS
 import os
+from config import Config
 
 
 app = Flask(__name__)
+app.config.from_object(Config)
 CORS(app)
 
 # Set up SQLAlchemy
@@ -131,6 +133,7 @@ def fetch_route_ids():
 
 @app.route('/')
 def home():
+    base_url = app.config['BASE_URL']
     with engine.connect() as connection:
         result = connection.execute(text('SELECT route_id FROM routes'))
         routes = result.fetchall()
