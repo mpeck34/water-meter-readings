@@ -147,6 +147,9 @@ def home():
     
     return f"""
     <p>Flask is running!</p>
+    <p>To begin:</p>
+    <p>https://water-meter-readings.onrender.com/index</p>
+    <p></p>
     <p>Available routes:</p>
     <ul>
         {route_list}
