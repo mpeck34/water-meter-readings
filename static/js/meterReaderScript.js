@@ -129,6 +129,7 @@ function updateTemporaryListTable() {
 function syncReadings() {
     const currentTime = new Date().toISOString();
 
+    // Update sync status and timestamp for each entry in temporaryList
     temporaryList.forEach(entry => {
         entry.sync_status = true;
         entry.last_sync = currentTime;
@@ -136,10 +137,24 @@ function syncReadings() {
 
     console.log('Syncing data with syncReadings():', temporaryList);
 
+    // Retrieve the route_id from localStorage
+    const route_id = localStorage.getItem('routeID');
+    if (!route_id) {
+        console.error('Route ID not found in localStorage');
+        return;
+    }
+
+    // Create the payload for the POST request
+    const payload = {
+        route_id: route_id, // Include route_id here
+        readings: temporaryList
+    };
+
+    // Make the API call to sync data
     fetch(`http://127.0.0.1:5000/sync_data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ readings: temporaryList })
+        body: JSON.stringify(payload)
     })
     .then(response => {
         if (response.ok) {
@@ -153,3 +168,4 @@ function syncReadings() {
         console.error('Error syncing readings:', error);
     });
 }
+

@@ -22,6 +22,9 @@
             background-color: green;
         }
     </style>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
 </head>
 <body>
     <div class="container mt-5">
@@ -54,7 +57,8 @@
         // Add event listener to the button for navigation
         document.getElementById('advance').addEventListener('click', function() {
             // Redirect to meterList.html when the button is clicked
-            window.location.href = 'meterList.html';
+            window.location.href = '/static/meterList.html';
+            // window.location.href = '/meterList';
         });
     </script>
 </body>

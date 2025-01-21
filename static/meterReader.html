@@ -75,7 +75,7 @@
 <body>
     <div class="top-bar">
         <button class="back-button" onclick="goBack()">←</button>
-        Route Number: 123
+        Route Number: <span id="route-number">Loading...</span>
     </div>
     <div class="main-area">
         <div class="meter-id">
@@ -91,8 +91,8 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/meterReaderScript.js') }}"></script>
+    <script src="js/script.js"></script>
+    <script src="js/meterReaderScript.js"></script>
 
     <script>
         function goBack() {
@@ -113,6 +113,19 @@
             console.log('meter id:' + meterID)
             document.getElementById('meterAddress').textContent = `Address: ${address}`;
         }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            // Get route ID from localStorage
+            const routeId = localStorage.getItem('routeID');
+            
+            if (routeId) {
+                // If the route ID exists in localStorage, update the text
+                document.getElementById('route-number').textContent = routeId;
+            } else {
+                // If route ID is not found, you can display a fallback message
+                document.getElementById('route-number').textContent = 'No route selected';
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             const { address, meterID } = getQueryParams();

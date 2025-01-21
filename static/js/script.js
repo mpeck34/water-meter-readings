@@ -25,6 +25,7 @@ async function fetchRouteData(routeId) {
 
         // Store the data in localStorage
         localStorage.setItem('routeData', JSON.stringify(data));
+        localStorage.setItem('routeID', routeId);
 
         updateUI(data);
     } catch (error) {

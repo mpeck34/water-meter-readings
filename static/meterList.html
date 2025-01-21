@@ -80,6 +80,9 @@
             display: none; /* Initially hide all lists */
         }
     </style>
+
+    <script src=js/script.js></script>
+
 </head>
 <body>
     <div class="top-bar">Route Number: 123</div>
@@ -94,8 +97,6 @@
         <div id="skippedList" class="list-section"></div>
         <div id="completedList" class="list-section"></div>
     </div>
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
     <script>
         // Function to fetch data when the refresh button is clicked

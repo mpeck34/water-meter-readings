@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, MetaData, Table
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
@@ -131,6 +131,10 @@ def fetch_route_ids():
         response = [{"route_id": row[0], "route_message": row[1]} for row in route_data]
     return response
 
+@app.route('/index')
+def display_index_html():
+    return render_template('index.html')  # Render index.html as a template
+
 @app.route('/')
 def home():
     base_url = app.config['BASE_URL']
@@ -167,6 +171,7 @@ def get_route_data(route_id):
 def sync_data():
     data = request.json
 
+    route_id = data.get("route_id")
     readings = data.get('readings', [])
     
     try:
@@ -185,8 +190,8 @@ def sync_data():
                 print(f"Updating meter_id: {meter_id}, read_value: {read_value}, read_status: {read_status}, sync_status: {sync_status}, last_sync: {last_sync}")
 
                 connection.execute(
-                    text('''
-                    UPDATE meter_readings
+                    text(f'''
+                    UPDATE meter_readings{route_id}
                     SET read_value = :read_value, 
                         read_status = :read_status, 
                         sync_status = :sync_status, 
@@ -199,8 +204,8 @@ def sync_data():
                 # Update skip_status and skip_reason if they exist
                 if skip_status is not None:
                     connection.execute(
-                        text('''
-                        INSERT OR REPLACE INTO skip_status (meter_id, skip_status, skip_reason)
+                        text(f'''
+                        INSERT OR REPLACE INTO skip_status{route_id} (meter_id, skip_status, skip_reason)
                         VALUES (:meter_id, :skip_status, :skip_reason)
                         '''),
                         {'meter_id': meter_id, 'skip_status': skip_status, 'skip_reason': skip_reason}
@@ -209,8 +214,8 @@ def sync_data():
                 # Update special_message if it exists
                 if special_message is not None:
                     connection.execute(
-                        text('''
-                        INSERT OR REPLACE INTO special_message (meter_id, message)
+                        text(f'''
+                        INSERT OR REPLACE INTO special_message{route_id} (meter_id, message)
                         VALUES (:meter_id, :message)
                         '''),
                         {'meter_id': meter_id, 'message': special_message}
