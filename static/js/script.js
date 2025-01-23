@@ -19,7 +19,7 @@ function saveListsToLocalStorage() {
 // Fetch route data from the backend and store in localStorage
 async function fetchRouteData(routeId) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/get_route_data/${routeId}`);
+        const response = await fetch(`https://water-meter-readings.onrender.com/get_route_data/${routeId}`);
         const data = await response.json();
         console.log('Fetched data:', data);
 
