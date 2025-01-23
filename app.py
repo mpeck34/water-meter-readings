@@ -237,7 +237,11 @@ def check_connection():
         # Try executing a simple query or check
         with engine.connect() as connection:
             result = connection.execute(text('SELECT 1'))  # A simple query to check DB connection
-            return jsonify({"status": "success", "message": "Backend is connected."}), 200
+            return jsonify({
+                "status": "success",
+                "message": "Backend is connected.",
+                "query_result": [row for row in result]  # Convert query result to a list
+            }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": f"Backend is not connected: {str(e)}"}), 500
 
