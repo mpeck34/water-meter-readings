@@ -248,7 +248,7 @@ def check_connection():
 if __name__ == '__main__':
     # Dynamically set the host and port
     host = '0.0.0.0'  # Always use '0.0.0.0' for cloud deployments like Render
-    port = int(os.getenv('PORT', 5000))  # Get the PORT environment variable (or default to 5000 locally)
+    port = int(os.getenv('PORT', 10000))  # Get the PORT environment variable (or default to 5000 locally)
     
     # Run the app with dynamic host and port
     app.run(debug=True, host=host, port=port)
