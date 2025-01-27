@@ -23,12 +23,8 @@ This results in the potential for either wasted labor or customer dissatisfactio
 - CORS
 
 ## How to use this project
+
     A live version of the basic app can be accessed at:
     https://water-meter-readings.onrender.com/index
 
-    To run on a local machine:
-    1. Run the app.py in the terminal and allow the Flask server to initialize
-    2. Flask can be confirmed by opening a new browser window and entering the following link http://127.0.0.1:5000
-    3. Open meterList.html in your preferred browser and select a meter to read
-    4. Enter the value up to 5 digits or skip the read (Repeat 5 times for sync)
-    5. Open serverDisplay.html in you preferred browswer to view the backend data
+    The instance hosted on Render may spin down with inactivity and may require 1 minute to load.
