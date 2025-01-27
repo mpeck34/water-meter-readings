@@ -12,7 +12,7 @@ class Route {
     // From script.js
     async fetchRouteDataClass(routeId) {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/get_route_data/${routeId}`);
+            const response = await fetch(`https://water-meter-readings.onrender.com/get_route_data/${routeId}`);
             const data = await response.json();
             console.log('Fetched data:', data);
 
@@ -66,7 +66,7 @@ async function loadRoutes() {
     routeListElement.innerHTML = '<p>Loading routes...</p>';
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/get_available_routes'); // Fetch list of routes
+        const response = await fetch('https://water-meter-readings.onrender.com/get_available_routes'); // Fetch list of routes
         if (!response.ok) {
             throw new Error(`Failed to fetch routes: ${response.statusText}`);
         }

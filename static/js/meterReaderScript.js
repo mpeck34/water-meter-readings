@@ -151,7 +151,7 @@ function syncReadings() {
     };
 
     // Make the API call to sync data
-    fetch(`http://127.0.0.1:5000/sync_data`, {
+    fetch(`https://water-meter-readings.onrender.com/sync_data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
