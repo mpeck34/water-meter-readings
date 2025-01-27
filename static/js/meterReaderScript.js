@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateTemporaryListTable();
+
 });
 
 // Save meter reading and add it to the temporary list
@@ -63,22 +64,43 @@ function saveReading(meterID, readValue, action, specialMessage) {
     // Persist the temporary list to localStorage
     saveTemporaryListToLocalStorage();
 
-    advanceToNextMeter();
+    advanceToNextMeter(meterID, readStatus);
 }
 
 // Advance to the next meter
-function advanceToNextMeter() {
+function advanceToNextMeter(meterID, readStatus) {
     // Retrieve lists from localStorage
     const pendingMeters = JSON.parse(localStorage.getItem('pendingList')) || [];
-    
-    if (pendingMeters.length > 0) {
-        const nextMeter = pendingMeters.shift(); // Get the next meter and remove it from the list
+    const skippedMeters = JSON.parse(localStorage.getItem('skippedList')) || [];
+    console.log("Pending meters list:", pendingMeters)
+
+    // Check for properly removed meters from list and advance
+    if (readStatus === 'c' && pendingMeters.length > 0) {
+
+        let nextMeter = pendingMeters.shift(); // Get the next meter and remove it from the list
+
+        if (nextMeter.meter_id === meterID && pendingMeters.length > 0) {
+            nextMeter = pendingMeters.shift(); // If it's still the same meter, shift again
+        }
         localStorage.setItem('pendingList', JSON.stringify(pendingMeters)); // Update localStorage
 
-        // Redirect to the next meter
+        // Redirect to the next pending meter
         window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
     } else {
         alert('All meters have been completed or skipped.');
+    }
+    
+    // Check if skip and advance
+    if (readStatus === 's') {
+        const pending = JSON.parse(localStorage.getItem('pendingList')) || [];
+        console.log("Pending meters before redirect:", pending); // Debug log
+        // Redirect to the next pending meter
+        if (pending.length > 0) {
+            const nextMeter = pending[0]
+            window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
+        } else {
+            alert('All meters have been completed or skipped.');
+        }
     }
 }
 
@@ -160,6 +182,7 @@ function syncReadings() {
         if (response.ok) {
             console.log('Readings synced successfully');
             temporaryList.length = 0; // Clear temporary list
+            updateTemporaryListTable();
         } else {
             console.error('Failed to sync readings');
         }
