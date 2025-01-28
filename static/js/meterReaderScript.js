@@ -71,35 +71,68 @@ function saveReading(meterID, readValue, action, specialMessage) {
 function advanceToNextMeter(meterID, readStatus) {
     // Retrieve lists from localStorage
     const pendingMeters = JSON.parse(localStorage.getItem('pendingList')) || [];
+    const temporaryList = JSON.parse(localStorage.getItem('temporaryList')) || [];
     console.log("Pending meters list:", pendingMeters)
     console.log("Read status check:" + readStatus)
 
-    // Check for properly removed meters from list and advance
-    if (readStatus === 'c' && pendingMeters.length > 0) {
-
-        let nextMeter = pendingMeters.shift(); // Get the next meter and remove it from the list
-
-        if (nextMeter.meter_id === meterID && pendingMeters.length > 0) {
-            nextMeter = pendingMeters.shift(); // If it's still the same meter, shift again
-        }
-        localStorage.setItem('pendingList', JSON.stringify(pendingMeters)); // Update localStorage
-
-        // Redirect to the next pending meter
-        window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
+    if (pendingMeters.length === 0) {
+        alert('Pending meters list empty.');
+        return; // Exit early if no pending meters exist
     }
-    // Check if skip and advance -- fix this
-    else if (readStatus === 's') {
-        const nextMeter = pendingMeters[0]
-        console.log("Pending meters before redirect:", pending); // Debug log
-        // Redirect to the next pending meter
-        if (pending.length > 0) {
-            window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
+
+    let nextMeter;
+
+    if (readStatus === 'c') { 
+        // Completed read: Advance normally in the pending list
+        nextMeter = pendingMeters[0]; // Peek at the next meter in the list
+
+        // If the current meter matches and there's another pending meter, shift to advance
+        if (pendingMeters[0].meter_id === meterID && pendingMeters.length > 1) {
+            pendingMeters.shift(); // Remove current meter
+            nextMeter = pendingMeters[0]; // Get the new first meter
+        }
+
+        localStorage.setItem('pendingList', JSON.stringify(pendingMeters)); // Update pending list in localStorage
+        if (nextMeter) {
+            redirectToMeter(nextMeter);
         } else {
-            window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
+            alert('No more meters to process.');
         }
+
+    } else if (readStatus === 's') {
+        // Skipped read: Handle skipping logic
+        const skippedMeterIndex = temporaryList.findIndex(obj => obj.meter_id === meterID);
+        if (skippedMeterIndex !== -1) {
+            // If the skipped meter exists in the temporary list, update its status
+            temporaryList[skippedMeterIndex].skipStatus = true;
+            localStorage.setItem('temporaryList', JSON.stringify(temporaryList));
+        }
+    
+        // Remove the skipped meter from the pending list if it's there
+        const meterToRemoveIndex = pendingMeters.findIndex(meter => meter.meter_id === meterID);
+        if (meterToRemoveIndex !== -1) {
+            pendingMeters.splice(meterToRemoveIndex, 1); // Remove the skipped meter from the pending list
+            localStorage.setItem('pendingList', JSON.stringify(pendingMeters));
+        }
+    
+        // Ensure skipping doesn't accidentally skip over pending meters
+        let nextMeter = pendingMeters[0]; // Peek at the first pending meter
+        if (nextMeter) {
+            redirectToMeter(nextMeter); // Redirect to the next pending meter
+        } else {
+            // Handle case where no pending meters are left
+            alert('No more pending meters to process.');
+        }
+    
     } else {
-        alert ('Unexpected read status or empty pending meters.');
+        // Unexpected read status or empty list
+        alert('Unexpected read status or empty pending meters.');
     }
+}
+
+// Helper function to redirect to the next meter
+function redirectToMeter(meter) {
+    window.location.href = `meterReader.html?meterIDValue=${meter.meter_id}&address=${encodeURIComponent(meter.address)}`;
 }
 
 // Load a meter's data into the UI
@@ -147,46 +180,60 @@ function updateTemporaryListTable() {
 
 // Sync readings to the server
 function syncReadings() {
-    const currentTime = new Date().toISOString();
+    return new Promise((resolve, reject) => {
+        const currentTime = new Date().toISOString();
 
-    // Update sync status and timestamp for each entry in temporaryList
-    temporaryList.forEach(entry => {
-        entry.sync_status = true;
-        entry.last_sync = currentTime;
-    });
+        // Update sync status and timestamp for each entry in temporaryList
+        temporaryList.forEach(entry => {
+            entry.sync_status = true;
+            entry.last_sync = currentTime;
+        });
 
-    console.log('Syncing data with syncReadings():', temporaryList);
+        console.log('Syncing data with syncReadings():', temporaryList);
 
-    // Retrieve the route_id from localStorage
-    const route_id = localStorage.getItem('routeID');
-    if (!route_id) {
-        console.error('Route ID not found in localStorage');
-        return;
-    }
-
-    // Create the payload for the POST request
-    const payload = {
-        route_id: route_id, // Include route_id here
-        readings: temporaryList
-    };
-
-    // Make the API call to sync data
-    fetch(`https://water-meter-readings.onrender.com/sync_data`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log('Readings synced successfully');
-            temporaryList.length = 0; // Clear temporary list
-            updateTemporaryListTable();
-        } else {
-            console.error('Failed to sync readings');
+        // Retrieve the route_id from localStorage
+        const route_id = localStorage.getItem('routeID');
+        if (!route_id) {
+            console.error('Route ID not found in localStorage');
+            return reject(new Error('Route ID not found in localStorage'));
         }
-    })
-    .catch(error => {
-        console.error('Error syncing readings:', error);
+
+        // Create the payload for the POST request
+        const payload = {
+            route_id: route_id, // Include route_id here
+            readings: temporaryList
+        };
+
+        // Make the API call to sync data
+        fetch(`https://water-meter-readings.onrender.com/sync_data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json(); // Parse the response if successful
+            })
+            .then(data => {
+                console.log('Readings synced successfully:', data);
+
+                // Clear the temporary list only on successful sync
+                temporaryList.length = 0;
+                localStorage.setItem('temporaryList', JSON.stringify([]));
+
+                // Optionally, update localStorage with new lists from the server
+                if (data.pendingList) localStorage.setItem('pendingList', JSON.stringify(data.pendingList));
+                if (data.skippedList) localStorage.setItem('skippedList', JSON.stringify(data.skippedList));
+                if (data.completedList) localStorage.setItem('completedList', JSON.stringify(data.completedList));
+
+                updateTemporaryListTable(); // Refresh the UI table if applicable
+                resolve();
+            })
+            .catch(error => {
+                console.error('Error syncing readings:', error);
+                reject(error);
+            });
     });
 }
-

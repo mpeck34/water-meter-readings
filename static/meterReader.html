@@ -99,9 +99,19 @@
     <script src="js/meterReaderScript.js"></script>
 
     <script>
+        // Sync readings to the server and navigate back
         function goBack() {
-            window.location.href = 'meterList.html'; // Navigate back to meterList.html
+            syncReadings()
+                .then(() => {
+                    alert('Sync complete. Navigating back to main list.');
+                    window.location.href = 'meterList.html'; // Adjust this URL as needed
+                })
+                .catch((error) => {
+                    console.error('Sync failed:', error);
+                    alert('Failed to sync readings. Please try again.');
+                });
         }
+
 
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
