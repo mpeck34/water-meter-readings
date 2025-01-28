@@ -71,8 +71,8 @@ function saveReading(meterID, readValue, action, specialMessage) {
 function advanceToNextMeter(meterID, readStatus) {
     // Retrieve lists from localStorage
     const pendingMeters = JSON.parse(localStorage.getItem('pendingList')) || [];
-    const skippedMeters = JSON.parse(localStorage.getItem('skippedList')) || [];
     console.log("Pending meters list:", pendingMeters)
+    console.log("Read status check:" + readStatus)
 
     // Check for properly removed meters from list and advance
     if (readStatus === 'c' && pendingMeters.length > 0) {
@@ -86,21 +86,19 @@ function advanceToNextMeter(meterID, readStatus) {
 
         // Redirect to the next pending meter
         window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
-    } else {
-        alert('All meters have been completed or skipped.');
     }
-    
-    // Check if skip and advance
-    if (readStatus === 's') {
-        const pending = JSON.parse(localStorage.getItem('pendingList')) || [];
+    // Check if skip and advance -- fix this
+    else if (readStatus === 's') {
+        const nextMeter = pendingMeters[0]
         console.log("Pending meters before redirect:", pending); // Debug log
         // Redirect to the next pending meter
         if (pending.length > 0) {
-            const nextMeter = pending[0]
             window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
         } else {
-            alert('All meters have been completed or skipped.');
+            window.location.href = `meterReader.html?meterIDValue=${nextMeter.meter_id}&address=${encodeURIComponent(nextMeter.address)}`;
         }
+    } else {
+        alert ('Unexpected read status or empty pending meters.');
     }
 }
 
